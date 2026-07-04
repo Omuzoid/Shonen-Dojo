@@ -1,0 +1,6 @@
+{
+  "name": "SHONEN DOJO",
+  "description": "An offline-first, client-side, hyper-interactive fitness app themed after Solo Leveling and classic Shonen training systems.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

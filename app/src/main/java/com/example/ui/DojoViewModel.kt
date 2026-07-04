@@ -18,11 +18,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -76,6 +78,54 @@ class DojoViewModel(application: Application) : AndroidViewModel(application) {
             val stats = dao.getUserStatsDirect()
             if (stats == null) {
                 dao.insertOrUpdateUserStats(UserStats())
+            }
+            
+            // Check and populate historical logs if empty
+            val existingLogs = dao.getAllWorkoutLogsFlow().first()
+            if (existingLogs.isEmpty()) {
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val workouts = listOf(
+                    "Push-Ups" to Pair(4, 20),
+                    "Squats" to Pair(4, 20),
+                    "Sit-Ups" to Pair(3, 15),
+                    "Plank" to Pair(3, 60),
+                    "Running" to Pair(1, 15)
+                )
+                
+                for (offset in 1..6) {
+                    val cal = Calendar.getInstance().apply {
+                        add(Calendar.DAY_OF_YEAR, -offset)
+                    }
+                    val dateStr = sdf.format(cal.time)
+                    val timestamp = cal.timeInMillis
+                    
+                    val w1 = workouts[offset % workouts.size]
+                    val w2 = workouts[(offset + 2) % workouts.size]
+                    
+                    dao.insertWorkoutLog(
+                        WorkoutLog(
+                            date = dateStr,
+                            exerciseName = w1.first,
+                            sets = w1.second.first,
+                            reps = w1.second.second,
+                            calories = w1.second.first * w1.second.second,
+                            timestamp = timestamp
+                        )
+                    )
+                    
+                    if (offset % 2 == 0) {
+                        dao.insertWorkoutLog(
+                            WorkoutLog(
+                                date = dateStr,
+                                exerciseName = w2.first,
+                                sets = w2.second.first,
+                                reps = w2.second.second,
+                                calories = w2.second.first * w2.second.second,
+                                timestamp = timestamp + 1000
+                            )
+                        )
+                    }
+                }
             }
         }
 

@@ -42,6 +42,7 @@ import com.example.ui.components.AnimeTrainerIllustration
 import com.example.ui.components.AuraEffects
 import com.example.ui.components.CompanionRenderer
 import com.example.ui.components.RadarChart
+import com.example.ui.components.WeeklyVolumeChart
 import com.example.ui.theme.*
 
 class MainActivity : ComponentActivity() {
@@ -291,6 +292,11 @@ fun DojoDashboardTab(viewModel: DojoViewModel) {
                 TodayWorkoutLogsSection(logs, viewModel)
             }
         }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Weekly Volume & Progression Metrics
+        WeeklyVolumeChart(logs = logs, modifier = Modifier.fillMaxWidth())
         
         Spacer(modifier = Modifier.height(16.dp))
         
